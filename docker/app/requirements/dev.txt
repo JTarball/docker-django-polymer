@@ -1,0 +1,5 @@
+-r base.txt
+tox
+ipython
+django_extensions
+django_dynamic_fixture
