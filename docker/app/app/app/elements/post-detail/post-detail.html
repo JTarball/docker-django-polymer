@@ -1,0 +1,46 @@
+// post-detail.html
+// Display a single post
+<link rel="import" href="../django-ajax/django-ajax.html">
+<dom-module id="post-detail">
+/* Shadow DOM CSS Cheat Sheet */
+/* http://robdodson.me/blog/2014/04/10/shadow-dom-css-cheat-sheet */
+    <style>
+        :host {
+            display: block;
+        }
+    </style>
+
+    <template>
+        <!--<django-ajax result='{{post}}' url="{{url}}"></django-ajax>-->
+        <django-ajax result='{{posts}}' url="http://192.168.99.100:8000/blog/post/new"></django-ajax>
+
+        <form id="add_comment_form" method="post" action="">
+          {{ posts }}
+          <a id="add_comment_submit" class="btn">Send</a>
+        </form>
+        <a>{{post.0.fields.title}}</a>
+        <div class="post">
+          <header class="header"><h1><a>{{post.0.fields.title}}</a></h1><p class="meta">{{post.0.fields.created_at}} • posted by {{post.0.fields.author}}</p></header>
+          <article id="content">{{ injectMarkup(post.0.fields.content_markup) }}</article>
+        </div>
+      <span>Update text to change the greeting.</span>
+      <input type="text" value="{{  }}">
+    </template>
+
+    <script>
+        (function () {
+          Polymer({
+            is: 'post-detail',
+            properties: {
+                post: {
+                  type: Array,
+                  url: { type: String }
+                }
+            },
+            injectMarkup: function(content) { 
+                this.$.content.innerHTML = content;
+            }
+        });
+      })();
+    </script>
+</dom-module>

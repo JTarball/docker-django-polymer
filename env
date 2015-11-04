@@ -5,6 +5,47 @@
 # 
 
 
+# =============================
+# Main Project Env - Dockerfile
+# =============================
+APP_DIR=/app
+
+
+
+# =============================
+# Django - Environment Vars
+#
+# REMEMBER TO CHANGE SUPERUSER
+# NAME AND PASSWORD WITH FIRST
+# USE
+#
+# =============================
+SUPERUSER_NAME=administrator
+SUPERUSER_PASSWORD=password12
+SUPERUSER_FIRSTNAME=James
+SUPERUSER_LASTNAME=Tarball
+SUPERUSER_EMAIL=james.tarball@gmail.com
+DB_NAME=postgres
+DB_USER=postgres
+DB_PASS=postgres
+DB_HOST=postgres
+DB_PORT=5432
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   #environment:
     # - ENV_TYPE=dev
@@ -83,9 +124,6 @@ NGINX_KEY_NAME
 
 
 
-
-
-APP_DIR=/app
 
 
 

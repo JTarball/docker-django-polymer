@@ -4,12 +4,23 @@ MAINTAINER James Tarball <james.tarball@gmail.com>
 ENV ENV_TYPE dev
 ENV APP_DIR /app
 
-ADD requirements /requirements
+# https://github.com/docker/docker/issues/12084  HACKS FOR TIMEZONE
 
-ENTRYPOINT sudo pip install -r /requirements/$ENV_TYPE.txt && \
+#ADD requirements /requirements
+
+#RUN sudo pip install -r /requirements/$ENV_TYPE.txt
+
+#ENTRYPOINT cp -r /app /src
+    #sudo pip install -r /requirements/$ENV_TYPE.txt && \
     #psql -u root -proot -Bse "CREATE DATABASE IF NOT EXISTS backend;" && \
-    #python $APP_DIR/manage.py migrate && \
-    #python $APP_DIR/manage.py collectstatic --noinput && \
-    #if [ $ENV_TYPE == "dev" ]; then python $APP_DIR/manage.py runserver_plus 0.0.0.0:8000; else  python $APP_DIR/backend/bin/run.py ; fi
+ENTRYPOINT python /app/backend/manage.py migrate && \
+    python /app/backend/manage.py collectstatic --noinput && \
+    python /app/backend/manage.py runserver_plus 0.0.0.0:8000 & gulp serve
 
-EXPOSE 8000
+
+#python -c 'import generateproject; print generateproject.create_superuser()'
+#ENTRYPOINT gulp serve
+
+#ENTRYPOINT if "$ENV_TYPE" == "dev" ; then python /app/backend/bin/run.py; else  python /app/backend/manage.py runserver_plus 0.0.0.0:8000; fi
+
+#EXPOSE 8000

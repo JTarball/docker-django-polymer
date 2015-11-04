@@ -1,0 +1,17 @@
+Copying the WordPress files to the mounted folder was the solution.
+
+I move the files in the container from the original folder to the mounted folder and use symbolic links to link them back to the original folder.
+
+The important part is, the container can follow symbolic links in the container and but the host can't. So just using symbolic links from the original folder to the mounted folder doesn't work, because the host cannot follow symbolic links in the container!
+
+
+ln -s /mount/app /app  or something likt his
+
+
+
+
+for first time development 
+
+need to mv /app to mount area after volume created
+then symboloic link if needed
+

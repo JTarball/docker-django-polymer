@@ -1,22 +1,33 @@
 # Docker Compose YML Config
-
-# frontend:
-#   image: jtarball/docker-polymer:latest
-#   env_file:
-#     - env
-#   expose:
-#     - "3000"
+# This is the development style config
 
 
-backend:
-  build: docker/django
+app:
+  restart: always
+  build: docker/app
   env_file:
     - env
-  expose:
-    - "8000"
+  volumes:
+    - ./docker/app/app:/app
+  ports:
+    - "8000:8000"
+    - "3000:3000"
+    - "3001:3001"
   links:
     - postgres:postgres
+    - redis:redis
 
+redis:
+  restart: always
+  image: redis:latest
+  ports:
+    - "6379:6379"
+
+data:
+  restart: always
+  image: postgres:latest
+  volumes:
+    - /var/lib/postgresql
 
 postgres:
   restart: always
@@ -25,9 +36,3 @@ postgres:
     - data
   ports:
     - "5432:5432"
-
-data:
-  restart: always
-  image: postgres:latest
-  volumes:
-    - /var/lib/postgresql

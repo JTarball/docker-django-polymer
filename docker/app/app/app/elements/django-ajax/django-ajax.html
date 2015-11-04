@@ -1,0 +1,42 @@
+// Django Ajax Call 
+// Based of iron-ajax with some django specify modifications to 
+// support CORS
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="django-ajax">
+<template>
+    <iron-ajax
+        auto
+        verbose
+
+        method="GET"
+        id="ajax" 
+        headers='{"X-Requested-With": "XMLHttpRequest"}' 
+        url="{{url}}"
+        handle-as="json"
+        on-response="setresult"
+        debounce-duration="300"
+        >
+    </iron-ajax>
+</template>
+
+<script>
+    Polymer({
+        is: "django-ajax",
+        properties: {
+            result: { type: String, notify: true },
+            url: { type: String }
+        },
+        ready: function () {
+            console.log('ready');
+            //this.$.ajax.url = "http://192.168.99.100:8000/blog/";
+            //this.$.ajax.params = {"userId":"1", "X-Requested-With":"XMLHttpRequest", "Access-Control-Allow-Headers": "X-Requested-With"};
+            //this.$.ajax.generateRequest();
+        },
+        setresult: function(request) {
+            console.log(this.url, request, request.detail.response, this.$.ajax.lastResponse);
+            this.result = this.$.ajax.lastResponse;
+        }
+    });
+</script>
+</dom-module>
