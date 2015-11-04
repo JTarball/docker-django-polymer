@@ -50,7 +50,9 @@ machine:
 dependencies:
     pre:
         - docker info
-        - sudo pip install docker-compose --upgrade
+        - sudo pip install docker-compose
+test:
+    pre:
         - docker-compose up -d
 
 # test:
