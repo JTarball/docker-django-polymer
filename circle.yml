@@ -15,7 +15,7 @@ dependencies:
         - sudo killall redis-server 
         - sudo killall postgres
         - docker info
-        - pip install docker-compose
+        - sudo pip install docker-compose
 test:
     pre:
         - docker-compose up -d
