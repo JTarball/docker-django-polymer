@@ -1,0 +1,64 @@
+#####
+# Circle CI
+# 
+# For running docker images on circle ci, see: https://circleci.com/docs/docker
+# For circle.yml explanation, see: https://circleci.com/docs/manually
+# Python specific configuration, see: https://circleci.com/docs/language-python
+#####
+
+
+
+# app:
+#   build: docker/app
+#   env_file:
+#     - env
+#   volumes:
+#     - ./docker/app/app:/app
+#   ports:
+#     - "8000:8000"
+#     - "3000:3000"
+#     - "3001:3001"
+#   links:
+#     - postgres:postgres
+#     - redis:redis
+
+# redis:
+#   image: redis:latest
+#   ports:
+#     - "6379:6379"
+
+# data:
+#   image: postgres:latest
+#   volumes:
+#     - /var/lib/postgresql
+
+# postgres:
+#   image: postgres:latest
+#   volumes_from:
+#     - data
+#   ports:
+#     - "5432:5432"
+
+
+
+
+
+machine:
+    services:
+        - docker
+
+dependencies:
+    pre:
+        - docker info
+        - sudo pip install docker-compose --upgrade
+        - docker-compose up -d
+
+# test:
+#     override:
+#         - sleep 10
+#         - curl --retry 10 --retry-delay 5 -vk https://localhost:9443
+
+# Running tests 'inside' container
+# test:
+#   override:
+#     - ./fig run -d app python /srv/django/starter/manage.py test
