@@ -33,10 +33,10 @@ def database_check():
             host=os.environ.get('POSTGRES_HOST'),
             port=os.environ.get('POSTGRES_PORT'))
     except:
-        
-        sys.exit(1)
+        print "fdsfsd"
+        #sys.exit(1)
 
-    sys.exit(0)
+    #sys.exit(0)
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ test:
     override:
         # WORKAROUND: WAITING FOR FIX - CREATE LOG FILES in github
         - docker-compose run app python ci.py
-        - docker-compose run app REUSE_DB=0 python manage.py test --settings=project.settings.test -s --with-queries blog
+        - docker-compose run app sh -c 'python ci.py && REUSE_DB=0 python manage.py test --settings=project.settings.test -s --with-queries blog' 
 #         - sleep 10
 #         - curl --retry 10 --retry-delay 5 -vk https://localhost:9443
 
