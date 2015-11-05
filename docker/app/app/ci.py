@@ -1,6 +1,6 @@
 #! /usr/bin/python
 """
-    codeship-build-check.py
+    ci.py
     -------------------
 
     The purpose of this script to run as a regression
@@ -12,9 +12,20 @@ import sys
 import psycopg2
 
 
+
+
+# Check admins as been created correctly
+# Check redis is up
+# Check database connect
+# Check emails can be sent
+# Django health check
+# Check services
+# Django system check
+
+
 def database_check():
+    print "Checking Database setup - environment variables ..."
     try:
-        print "database_check"
         psycopg2.connect(
             dbname=os.environ.get('POSTGRES_NAME'),
             user=os.environ.get('POSTGRES_USER'),
@@ -22,7 +33,7 @@ def database_check():
             host=os.environ.get('POSTGRES_HOST'),
             port=os.environ.get('POSTGRES_PORT'))
     except:
-        print "errpr"
+        
         sys.exit(1)
 
     sys.exit(0)

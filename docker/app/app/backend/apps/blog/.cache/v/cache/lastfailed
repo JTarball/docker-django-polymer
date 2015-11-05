@@ -1,1 +1,4 @@
-{}
+{
+  "test_views.py::TestPostListByYear::test_post_posts_forbidden": true, 
+  "test_views.py::TestPostListByYear::test_put_posts_forbidden": true
+}
