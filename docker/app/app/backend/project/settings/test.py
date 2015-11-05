@@ -60,7 +60,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 # Override
-#INSTALLED_APPS += (
+INSTALLED_APPS += (
 
 #     'django.contrib.auth',
 #     'django.contrib.contenttypes',
@@ -71,10 +71,10 @@ STATICFILES_FINDERS = (
 #     'accounts',
 #     'blog',
 #     'south',
-#     'django_nose',
+     'django_nose',
 #     'project.views.tests',
 #     'search'
-#)
+)
 
 print INSTALLED_APPS
 
