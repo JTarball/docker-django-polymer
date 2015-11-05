@@ -22,7 +22,7 @@ test:
 
 test:
     override:
-        - python ci.py
+        - docker-compose run app python ci.py
 #         - sleep 10
 #         - curl --retry 10 --retry-delay 5 -vk https://localhost:9443
 
