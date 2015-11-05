@@ -153,7 +153,7 @@ LOGGING = {
         },
         'project_logger': {
             'handlers': ['console', 'file'],
-            'level': 'INFO',
+            'level': 'WARNING',
             'propagate': True,
         },
         'test_logger': {

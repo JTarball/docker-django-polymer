@@ -29,3 +29,4 @@ This is a docker file for django polymer web project.
 
 # Run tests on app
 py.test --ds=project.settings.test  <app dir>
+REUSE_DB=0 python manage.py test --settings=project.settings.test -s --with-queries blog

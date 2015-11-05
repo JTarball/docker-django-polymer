@@ -145,23 +145,25 @@ class TestPostListByYear(APITestCase):
         self.year = "2015"
         self.url = reverse('blog:list_year', kwargs={'year': self.year})
 
-    def test_post_posts_forbidden(self):
-        """ Test post action is forbidden for an anonymous user. """
+    def test_post_posts_forbidden_normal_user(self):
+        """ Test post action is forbidden for an normal user. """
         G(Post, author=self.user, published=True, updated_at=datetime.date(2014, 3, 13))
         G(Post, author=self.user, published=True)
+        # Force Authentication and Post
+        self.client.force_authenticate(user=self.user)
         post = G(Post, author=self.user)
         serializer = PostSerializer(post)
         response = self.client.post(self.url, serializer.data, format='json')
         self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_posts_forbidden(self):
-        """ Test all posts are retrieved for superadmin """
+        """ Test all posts are retrieved for anonymous user. """
         G(Post, author=self.user, published=True, updated_at=datetime.date(2014, 3, 13))
         G(Post, author=self.user, published=True)
         post = G(Post, author=self.user)
         serializer = PostSerializer(post)
         response = self.client.put(self.url, serializer.data, format='json')
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_published_posts_by_year(self):
         """ Test published posts are retrieved. """
