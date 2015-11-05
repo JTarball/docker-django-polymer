@@ -14,6 +14,7 @@ import psycopg2
 
 def database_check():
     try:
+        print "database_check"
         psycopg2.connect(
             dbname=os.environ.get('POSTGRES_NAME'),
             user=os.environ.get('POSTGRES_USER'),
@@ -21,6 +22,7 @@ def database_check():
             host=os.environ.get('POSTGRES_HOST'),
             port=os.environ.get('POSTGRES_PORT'))
     except:
+        print "errpr"
         sys.exit(1)
 
     sys.exit(0)
@@ -28,3 +30,4 @@ def database_check():
 
 if __name__ == "__main__":
     database_check()
+    print "dsdfs"
