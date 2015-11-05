@@ -22,8 +22,7 @@ test:
 
 test:
     override:
-        # WORKAROUND: WAITING FOR FIX - CREATE LOG FILES HERE
-        - docker-compose run app touch backend/log/project.log backend/log/redis_stat.log backend/log/bucketmanager.log
+        # WORKAROUND: WAITING FOR FIX - CREATE LOG FILES in github
         - docker-compose run app python ci.py
         - docker-compose run app py.test --ds=project.settings.test  backend/apps/blog
 #         - sleep 10
