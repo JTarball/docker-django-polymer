@@ -20,10 +20,11 @@ dependencies:
 
 test:
   override:
-  # APP_DIR START
+    # APP_DIR START
+    # need to save junit results inside app within docker container then copy to CIRCLE_TEST_REPORTS
     - docker-compose run app sh -c "cd backend/ && mkdir -p circle-junit/django && py.test --junitxml=circle-junit/django/junit.xml apps/blog"
     - mkdir -p $CIRCLE_TEST_REPORTS/django
-    - mv /home/ubuntu/docker-django-polymer/docker/app/app/backend/circle-junit/django $CIRCLE_TEST_REPORTS/django
+    - mv /home/ubuntu/docker-django-polymer/docker/app/app/backend/circle-junit/django $CIRCLE_TEST_REPORTS/
 
 
 #test:
