@@ -17,10 +17,13 @@ dependencies:
         - docker info
         - sudo pip install docker-compose
         - docker-compose up -d
+
 test:
   override:
   # APP_DIR START
-    - docker-compose run app sh -c "mkdir -p $CIRCLE_TEST_REPORTS/django && cd backend/ && py.test --junitxml=$CIRCLE_TEST_REPORTS/django/junit.xml apps/blog"
+    - docker-compose run app sh -c "cd backend/ && mkdir -p circle-junit/django && py.test --junitxml=circle-junit/django/junit.xml apps/blog"
+    - mkdir -p $CIRCLE_TEST_REPORTS/django
+    - mv /home/ubuntu/docker-django-polymer/docker/app/app/backend/circle-junit/django $CIRCLE_TEST_REPORTS/django
 
 
 #test:
