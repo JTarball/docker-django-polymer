@@ -16,10 +16,7 @@ dependencies:
         - sudo killall postgres
         - docker info
         - sudo pip install docker-compose
-test:
-    pre:
         - docker-compose up -d
-
 test:
     override:
         # WORKAROUND: WAITING FOR FIX - CREATE LOG FILES in github
