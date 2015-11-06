@@ -7,6 +7,8 @@
 """
 from rest_framework.test import APITestCase
 
+from taggit.managers import TaggableManager
+
 from django.db import models
 from django.db.models import signals
 from django.template.defaultfilters import slugify
@@ -22,7 +24,7 @@ class TestModelPost(models.Model):
     # =====================
     # For Redis Search Only
     # =====================
-    searchable_fields = ['title']
+    searchable_fields = ['title', 'tags']
     redis_stored_fields = ['title', 'slug', 'get_absolute_url']
     # ======================
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -30,6 +32,7 @@ class TestModelPost(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
     content = models.TextField()
+    tags = TaggableManager(blank=True)
 
     def __unicode__(self):
         return self.title
@@ -198,20 +201,21 @@ class SearchUtilTests(APITestCase):
         self.assertEquals(len(autocomplete_suggestion('', 10)), 0)
 
     def test_search_function(self):
-        """ Test search function. """
+        """ Test basic search function - top search should have the highest hit count. """
         G(TestModelPost, title="This is a python post.", slug="", author=self.staff)
         G(TestModelPost, title="This is a post called attempt post.", slug="", author=self.staff)
         G(TestModelPost, title="This is a test attempt post.", slug="", author=self.staff)
         G(TestModelPost, title="This is a test case.", slug="", author=self.staff)
         G(TestModelPost, title="This is a test.", slug="", author=self.staff)
         result = search_redis("post attempt")
-        self.assertEquals(result, [{'pk': 2, 'model': 'search.testmodelpost', 'fields': 
-                                   {'get_absolute_url': '/blog/post/this-is-a-post-called-attempt-post/', 
-                                    'slug': 'this-is-a-post-called-attempt-post', 
-                                    'title': 'This is a post called attempt post.'}}, 
-                                    {'pk': 3, 'model': 'search.testmodelpost', 'fields': 
-                                    {'get_absolute_url': '/blog/post/this-is-a-test-attempt-post/',
-                                    'slug': 'this-is-a-test-attempt-post', 'title': 'This is a test attempt post.'}}, 
-                                    {'pk': 1, 'model': 'search.testmodelpost', 
+        self.assertEquals(result, [{'pk': 2, 'model': 'search.testmodelpost', 'fields':
+                                   {'get_absolute_url': '/blog/post/this-is-a-post-called-attempt-post/',
+                                    'slug': 'this-is-a-post-called-attempt-post',
+                                    'title': 'This is a post called attempt post.'}},
+                                   {'pk': 3, 'model': 'search.testmodelpost', 'fields':
+                                   {'get_absolute_url': '/blog/post/this-is-a-test-attempt-post/',
+                                    'slug': 'this-is-a-test-attempt-post', 'title': 'This is a test attempt post.'}},
+                                   {'pk': 1, 'model': 'search.testmodelpost',
                                     'fields': {'get_absolute_url': '/blog/post/this-is-a-python-post/',
                                     'slug': 'this-is-a-python-post', 'title': 'This is a python post.'}}])
+

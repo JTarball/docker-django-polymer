@@ -18,7 +18,7 @@ logger = logging.getLogger('project_logger')
 def autosuggest_view(request):
     """ Autocompletes query using Redis. """
     q = request.GET.get('q', "")
-    logger.info("autosuggest_view   q ----------- %s" % q)
+    logger.debug("autosuggest_view, query: %s" % q)
     return Response(utils.autocomplete_suggestion(q, 10))
 
 
@@ -26,5 +26,5 @@ def autosuggest_view(request):
 def search_view(request):
     """ Searchs Redis based on query. """
     q = request.GET.get('q', "")
-    logger.info("search_view       q ----------- %s" % q)
-    return Response(utils.search_redis(q, 10))
+    logger.debug("search_view, query: %s" % q)
+    return Response(utils.search_redis(q, 25))
