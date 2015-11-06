@@ -22,7 +22,6 @@ test:
   # APP_DIR START
     - CIRCLE_TEST_REPORTS=./circle-junit
     - mkdir -p $CIRCLE_TEST_REPORTS/django && pushd backend && py.test --junitxml=$CIRCLE_TEST_REPORTS/django/junit.xml apps/blog && popd
-        parallel: true
 
 
 #test:
