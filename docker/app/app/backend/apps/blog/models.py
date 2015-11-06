@@ -6,6 +6,8 @@
 
 """
 import logging
+import datetime
+from dateutil import relativedelta
 
 from taggit.managers import TaggableManager
 
@@ -16,7 +18,7 @@ from django.db.models import signals
 from django.utils.translation import ugettext as _
 from django.template.defaultfilters import slugify
 
-from blog.utils import markup
+from blog.utils import markup, toTimeAgo
 from search.utils import add_model_to_redis, dump_redis, flush_redis
 # Get instance of logger
 logger = logging.getLogger('project_logger')
@@ -61,6 +63,7 @@ class Post(models.Model):
     # ======================
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
+    date_ago = models.CharField(blank=True, max_length=255)
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
     content = models.TextField()
@@ -79,6 +82,7 @@ class Post(models.Model):
         return ("blog:detail", (), {"slug": self.slug})
 
     def save(self, *args, **kwargs):
+        self.date_ago = toTimeAgo(relativedelta.relativedelta(datetime.datetime.now(), self.updated_at))
         self.content_markup = str(markup(self.content))
         if not self.slug:
             self.slug = slugify(self.title)

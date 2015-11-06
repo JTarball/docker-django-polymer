@@ -10,10 +10,9 @@ A basic 'blog' app perfect for website announcements / basic blog page
 - static page with a list of blog posts
 - detail page for each post
 - code highlighting via <code></code> blocks powered by pygments
+- Blog Post Lists can be filtered by user, year
+- tags
 
-
-# Currently not implemented
-# - search ability via Redis (search app - thus if you have this installed the search app should be installed by default)
 
 
 # Ideas on Frontend

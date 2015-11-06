@@ -21,6 +21,7 @@ import psycopg2
 # Django health check
 # Check services
 # Django system check
+#check redis connection
 
 
 def database_check():
