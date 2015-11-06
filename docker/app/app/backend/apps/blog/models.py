@@ -57,7 +57,7 @@ class Post(models.Model):
     # =====================
     # For Redis Search Only
     # =====================
-    searchable_fields = ['title']
+    searchable_fields = ['title', 'tags']
     # These are fields for the model which are saved to Redis. for fast access (stop gap for noSQL database)
     redis_stored_fields = ['title', 'slug', 'get_absolute_url']
     # ======================
@@ -77,12 +77,15 @@ class Post(models.Model):
     def __unicode__(self):
         return self.title
 
+    def timeAgo(self):
+        return toTimeAgo(relativedelta.relativedelta(datetime.datetime.now(), self.updated_at))
+
     @models.permalink
     def get_absolute_url(self):
         return ("blog:detail", (), {"slug": self.slug})
 
     def save(self, *args, **kwargs):
-        self.date_ago = toTimeAgo(relativedelta.relativedelta(datetime.datetime.now(), self.updated_at))
+        self.date_ago = self.timeAgo()
         self.content_markup = str(markup(self.content))
         if not self.slug:
             self.slug = slugify(self.title)

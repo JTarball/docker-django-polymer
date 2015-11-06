@@ -6,12 +6,15 @@
     This is the main file for adding Redis search
     capability to django models
 
+    - support for Taggit (TaggableManager)
+
     How to use:
 
 
 """
 import logging
 
+import taggit
 from redis import Redis
 
 from project.utils.colours import green, sgreen, purple
@@ -136,7 +139,11 @@ def add_model_to_redis(instance, **kwargs):
         for field in instance.searchable_fields:
             logger.debug("Model %s (%s) - %s" % (instance, instance.pk, field))
             fieldVal = getattr(instance, field, '')
-            _add_phrase(fieldVal)
+            if isinstance(fieldVal, taggit.managers._TaggableManager):
+                for str_tag in fieldVal.names():
+                    _add_phrase(str_tag)
+            else:
+                _add_phrase(fieldVal)
     else:
         logger.error('Some fields in searchable_fields are not present in %s.\
                       Please recheck.\nNot Added to Redis.' % instance)

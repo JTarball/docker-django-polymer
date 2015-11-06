@@ -60,5 +60,5 @@ class PostViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff or self.request.user.is_superuser:
             return Post.objects.all()
         else:
-            logger.warn("live only")
+            # logger.warn("live post call only")
             return Post.objects.live()
