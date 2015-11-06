@@ -18,9 +18,18 @@ dependencies:
         - sudo pip install docker-compose
         - docker-compose up -d
 test:
-    override:
+  override:
+  # APP_DIR START
+    - CIRCLE_TEST_REPORTS=./circle-junit
+    - mkdir -p $CIRCLE_TEST_REPORTS/django && py.test --junitxml=$CIRCLE_TEST_REPORTS/django/junit.xml backend/apps/blog
+        parallel: true
+
+
+#test:
+#    override:
+        #CIRCLE_TEST_REPORTS=/home/ubuntu/docker-django-polymer/docker/app/app/backend/circle-junit
         # WORKAROUND: WAITING FOR FIX - CREATE LOG FILES in github
-        - docker-compose run app sh -c 'python ci.py && REUSE_DB=0 python backend/manage.py test --settings=project.settings.test blog' 
+        #- docker-compose run app sh -c 'python ci.py && REUSE_DB=0 python backend/manage.py test --settings=project.settings.test blog' 
 #         - sleep 10
 #         - curl --retry 10 --retry-delay 5 -vk https://localhost:9443
 
