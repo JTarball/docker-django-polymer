@@ -81,6 +81,18 @@ class BlogTests(APITestCase):
         self.assertTrue(post2 not in posts)
         self.assertTrue(post3 not in posts)
 
+    def test_posts_live_by_tag(self):
+        """ A test to ensure only publish posts are returned for a specific tag. """
+        user1 = G(AccountsUser, is_superuser=False, is_staff=False)
+        user2 = G(AccountsUser, is_superuser=False, is_staff=False)
+        post1 = G(Post, tags=['tag1'], author=user1, published=True)
+        post2 = G(Post, tags=['tag2'], author=user1, published=True)
+        post3 = G(Post, tags=['tag1'], author=user2, published=False)
+        posts = Post.objects.live_by_tag('tag1')
+        self.assertTrue(post1 in posts)
+        self.assertTrue(post2 not in posts)
+        self.assertTrue(post3 not in posts)
+
     def test_posts_by_year(self):
         """ A test to ensure all posts are returned for a specific year. """
         post_2011 = G(Post, updated_at=datetime.datetime(2011, 8, 22), published=True)

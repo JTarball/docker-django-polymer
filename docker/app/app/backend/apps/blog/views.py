@@ -42,6 +42,18 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @list_route(methods=['get'])
+    def posts_by_tag(self, request, *args, **kwargs):
+        """
+            Returns a list of posts from a given tag.
+        """
+        if self.request.user.is_staff or self.request.user.is_superuser:
+            posts = Post.objects.by_tag(kwargs['tag'])
+        else:
+            posts = Post.objects.live_by_tag(kwargs['tag'])
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['get'])
     def posts_by_user(self, request, *args, **kwargs):
         """
             Returns a list of posts for a given author.

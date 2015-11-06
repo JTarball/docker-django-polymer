@@ -13,7 +13,8 @@ ENV APP_DIR /app
 #ENTRYPOINT cp -r /app /src
     #sudo pip install -r /requirements/$ENV_TYPE.txt && \
     #psql -u root -proot -Bse "CREATE DATABASE IF NOT EXISTS backend;" && \
-CMD python /app/backend/manage.py migrate && \
+CMD python manage.py makemigrations && \
+    python /app/backend/manage.py migrate && \
     python /app/backend/manage.py collectstatic --noinput && \
     python /app/backend/manage.py runserver_plus 0.0.0.0:8000 & gulp serve
 

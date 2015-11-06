@@ -37,6 +37,12 @@ class PostManager(models.Manager):
     def live_by_year(self, year):
         return self.model.objects.filter(updated_at__year=year, published=True)
 
+    def by_tag(self, tag):
+        return self.model.objects.filter(tags__name__in=[tag]).distinct()
+
+    def live_by_tag(self, tag):
+        return self.model.objects.filter(tags__name__in=[tag], published=True).distinct()
+
     def by_user(self, user):
         try:
             user_id = get_user_model().objects.get(username=user).id
@@ -63,13 +69,16 @@ class Post(models.Model):
     # ======================
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
-    date_ago = models.CharField(blank=True, max_length=255)
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
     content = models.TextField()
     content_markup = models.TextField(blank=True, verbose_name=_(u'Content (Markdown)'), help_text=_(u' '))
     published = models.BooleanField(default=False)
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
+    # Beautified fields
+    # date_ago = models.CharField(blank=True, max_length=255) # not currently used
+    updated_at_beautified = models.CharField(blank=True, max_length=50)
+    author_name = models.CharField(blank=True, max_length=50)
     tags = TaggableManager(blank=True)
     # add our custom model manager
     objects = PostManager()
@@ -85,8 +94,10 @@ class Post(models.Model):
         return ("blog:detail", (), {"slug": self.slug})
 
     def save(self, *args, **kwargs):
-        self.date_ago = self.timeAgo()
         self.content_markup = str(markup(self.content))
+        self.author_name = str(get_user_model().objects.get(id=self.author.id).username)
+        if isinstance(self.updated_at, datetime.date):
+            self.updated_at_beautified = str(self.updated_at.today().strftime('%d, %b %Y'))
         if not self.slug:
             self.slug = slugify(self.title)
         super(Post, self).save(*args, **kwargs)

@@ -183,7 +183,7 @@ class TestPostListByUser(APITestCase):
         self.client = APIClient()
         self.url = reverse('blog:list_user', kwargs={'user': self.user})
 
-    def test_patch_posts_method_not_allowed(self):
+    def test_posts_patch_method_not_allowed(self):
         """ Tests list_user is not allowed for patch method. """
         G(Post, author=self.user, published=True, updated_at=datetime.date(2014, 3, 13))
         G(Post, author=self.user, published=True)
@@ -193,7 +193,7 @@ class TestPostListByUser(APITestCase):
         response = self.client.patch(self.url, serializer.data, format='json')
         self.assertEquals(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_post_posts_method_not_allowed(self):
+    def test_posts_post_method_not_allowed(self):
         """ Tests list_user is not allowed for post method. """
         G(Post, author=self.user, published=True, updated_at=datetime.date(2014, 3, 13))
         G(Post, author=self.user, published=True)
@@ -203,7 +203,7 @@ class TestPostListByUser(APITestCase):
         response = self.client.post(self.url, serializer.data, format='json')
         self.assertEquals(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_put_posts_method_not_allowed(self):
+    def test_posts_put_method_not_allowed(self):
         """ Tests list_user is not allowed for put method. """
         G(Post, author=self.user, published=True, updated_at=datetime.date(2014, 3, 13))
         G(Post, author=self.user, published=True)
@@ -229,6 +229,65 @@ class TestPostListByUser(APITestCase):
         G(Post, author=self.user, published=True)
         G(Post, author=self.user, published=True)
         logger.info("%s" % self.url)
+        response = self.client.get(self.url, format='json')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 2)
+
+
+class TestPostListByTag(APITestCase):
+
+    def setUp(self):
+        self.user = G(AccountsUser, is_superuser=False, is_staff=False)
+        self.staff = G(AccountsUser, is_superuser=False, is_staff=True)
+        self.tag = 'tag1'
+        self.client = APIClient()
+        self.url = reverse('blog:list_tag', kwargs={'tag': self.tag})
+
+    def test_posts_patch_method_not_allowed(self):
+        """ Tests list_tag is not allowed for patch method. """
+        G(Post, author=self.user, published=True, tags=[self.tag])
+        G(Post, author=self.user, published=True)
+        post = G(Post, author=self.user)
+        serializer = PostSerializer(post)
+        self.client.force_authenticate(user=self.staff)
+        response = self.client.patch(self.url, serializer.data, format='json')
+        self.assertEquals(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_post_post_method_not_allowed(self):
+        """ Tests list_tag is not allowed for post method. """
+        G(Post, author=self.user, published=True, tags=[self.tag])
+        G(Post, author=self.user, published=True)
+        post = G(Post, author=self.user)
+        serializer = PostSerializer(post)
+        self.client.force_authenticate(user=self.staff)
+        response = self.client.post(self.url, serializer.data, format='json')
+        self.assertEquals(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_posts_put_method_not_allowed(self):
+        """ Tests list_tag is not allowed for put method. """
+        G(Post, author=self.user, published=True, tags=[self.tag])
+        G(Post, author=self.user, published=True)
+        post = G(Post, author=self.user)
+        serializer = PostSerializer(post)
+        self.client.force_authenticate(user=self.staff)
+        response = self.client.put(self.url, serializer.data, format='json')
+        self.assertEquals(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_get_posts_live_by_tag_staff(self):
+        """ Test all posts for a specific author are returned for staff. """
+        G(Post, author=self.user, published=False, tags=[self.tag])
+        G(Post, author=self.user, published=True, tags=[self.tag])
+        G(Post, author=self.user, published=True, tags=[self.tag])
+        self.client.force_authenticate(user=self.staff)
+        response = self.client.get(self.url, format='json')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 3)
+
+    def test_get_posts_by_tag(self):
+        """ Test published posts for a specific author are returned for anonymous users. """
+        G(Post, author=self.user, published=False, tags=[self.tag])
+        G(Post, author=self.user, published=True, tags=[self.tag])
+        G(Post, author=self.user, published=True, tags=[self.tag])
         response = self.client.get(self.url, format='json')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.data), 2)
