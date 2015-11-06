@@ -9,7 +9,7 @@
 # Main Project Env - Dockerfile
 # =============================
 APP_DIR=/app
-
+CIRCLE_TEST_REPORTS=/app/circle-junit
 
 
 # =============================
