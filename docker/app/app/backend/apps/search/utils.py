@@ -193,6 +193,7 @@ def autocomplete_suggestion(phrase, no_of_results):
     words = phrase.lower().split()
     logger.debug("Split Phrase: [ %s ] into [ %s ]" % (phrase, words))
     [results.update(_autocomplete_word(r, word, count=no_of_results)) for word in words]
+    logger.info("results: %s" % results)
     return results
 
 
@@ -211,9 +212,12 @@ def autocomplete_phrase(phrase, no_of_results):
             else:
                 r.zincrby(ZKEY_TMP_SEARCH_RANKING, member, r.zscore(ZKEY_AUTOCOMPLETE_SCORE, phrase+":"+member))
     logger.debug("zrangebyscore: %s" % r.zrangebyscore(ZKEY_TMP_SEARCH_RANKING, float("-inf"), float("inf")))
-    res = r.zrangebyscore(ZKEY_TMP_SEARCH_RANKING, float("-inf"), float("inf"))
+    res = r.zrangebyscore(ZKEY_TMP_SEARCH_RANKING, float("-inf"), float("+inf"))
+    # Can now delete the tmp redis sorted set
+    r.zremrangebyrank(ZKEY_TMP_SEARCH_RANKING, 0, -1)
+    # Need to reverse as high scores has the highest index - not what we wank
     res.reverse()
-    logger.debug("%s  %s" % (res, res[:no_of_results]))
+    logger.debug("res: %s  %s" % (res, res[:no_of_results]))
     return res[:no_of_results]
 
 
@@ -224,15 +228,12 @@ def _get_django_redis_model(val):
     # app, model = content.split('.')
     # HACK - Create a json structure similar to a normal django model
     json_result = {
-        "pk": int(id),
+        "id": int(id),
         "model": "%s" % model,
-        "fields": ""
     }
-    fields = {}
     for field in sorted(r.sunion(SKEY_MODELS+val), key=str.lower):
         field_name, field_val = field.split(":")
-        fields[field_name] = field_val
-    json_result['fields'] = fields
+        json_result[field_name] = field_val
     return json_result
 
 

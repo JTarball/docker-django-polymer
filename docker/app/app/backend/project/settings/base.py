@@ -225,23 +225,21 @@ THIRD_PATH_APPS = (
 
 # HACK BEFORE DJANGO.CONTRIB.AUTH
 LOCAL_APPS = (
-
     'accounts',
-    'search',
     'stats',
-    #'accounts.rest_auth',
-    #'accounts.profiles',
+    # 'accounts.rest_auth',
+    # 'accounts.profiles',
     'blog',
-    #'content',
-    #'mailbot',
-    #'search',
-    #'shop',
-    #'cms',
-    #'admin',
+    # 'content',
+    # 'mailbot',
+    # 'search',
+    # 'shop',
+    # 'cms',
+    # 'admin',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PATH_APPS + LOCAL_APPS
-
+print INSTALLED_APPS
 # ---------------------------------------------------------------------------- #
 # Third Party App Dependencies
 # ---------------------------------------------------------------------------- #
@@ -275,7 +273,7 @@ REST_FRAMEWORK = {
        'rest_framework.authentication.TokenAuthentication',
    ),
    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAdminUser'
+        'rest_framework.permissions.IsAdminUser',
    ),
    'PAGINATE_BY': 10,
 }

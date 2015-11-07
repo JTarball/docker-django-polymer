@@ -7,56 +7,13 @@
 """
 from rest_framework.test import APITestCase
 
-from taggit.managers import TaggableManager
-
-from django.db import models
-from django.db.models import signals
-from django.template.defaultfilters import slugify
 from django_dynamic_fixture import G
 
 from accounts.models import AccountsUser
 from search.utils import r, ZKEY_AUTOCOMPLETE, SKEY_AUTOCOMPLETE
-from search.utils import add_model_to_redis, dump_redis, flush_redis, autocomplete_suggestion, search_redis
+from search.utils import flush_redis, autocomplete_suggestion, search_redis
 
-
-class TestModelPost(models.Model):
-    """ Test Model - Post like Model """
-    # =====================
-    # For Redis Search Only
-    # =====================
-    searchable_fields = ['title', 'tags']
-    redis_stored_fields = ['title', 'slug', 'get_absolute_url']
-    # ======================
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
-    content = models.TextField()
-    tags = TaggableManager(blank=True)
-
-    def __unicode__(self):
-        return self.title
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ("blog:detail", (), {"slug": self.slug})
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        super(TestModelPost, self).save(*args, **kwargs)
-
-
-##############################################################################
-# Comment - type of comment (warning/ issue / comment)
-##############################################################################
-def reindex_redis_search(sender, instance, **kwargs):
-    """ Callback function which recalculates what is searchable in redis from sender. """
-    flush_redis()
-    [add_model_to_redis(model) for model in TestModelPost.objects.all()]
-    dump_redis()
-
-signals.post_save.connect(reindex_redis_search, sender=TestModelPost, dispatch_uid="add_post_tags")
+from tests.models import TestModelPost
 
 
 class SearchUtilTests(APITestCase):
@@ -81,7 +38,7 @@ class SearchUtilTests(APITestCase):
         self.assertTrue(SKEY_AUTOCOMPLETE+'test' in autocomplete_list)
         self.assertTrue(SKEY_AUTOCOMPLETE+'post' in autocomplete_list)
         self.assertTrue(SKEY_AUTOCOMPLETE+'this is a test post' in autocomplete_list)
-        self.assertEquals(r.smembers('models-search.testmodelpost:1'),
+        self.assertEquals(r.smembers('models-tests.testmodelpost:1'),
                           set(['title:This is a test post.',
                                'slug:this-is-a-test-post',
                                'get_absolute_url:/blog/post/this-is-a-test-post/']))
@@ -125,31 +82,31 @@ class SearchUtilTests(APITestCase):
         self.assertTrue(SKEY_AUTOCOMPLETE+'this is the first post' in autocomplete_list)
         self.assertTrue(SKEY_AUTOCOMPLETE+'am' in autocomplete_list)
         self.assertTrue(SKEY_AUTOCOMPLETE+'post' in autocomplete_list)
-        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'this'), set(['search.testmodelpost:3',
-                                                                     'search.testmodelpost:2',
-                                                                     'search.testmodelpost:1']))
-        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'is'), set(['search.testmodelpost:3',
-                                                                   'search.testmodelpost:2',
-                                                                   'search.testmodelpost:1']))
-        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'the'), set(['search.testmodelpost:3',
-                                                                    'search.testmodelpost:2',
-                                                                    'search.testmodelpost:1']))
+        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'this'), set(['tests.testmodelpost:3',
+                                                                     'tests.testmodelpost:2',
+                                                                     'tests.testmodelpost:1']))
+        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'is'), set(['tests.testmodelpost:3',
+                                                                   'tests.testmodelpost:2',
+                                                                   'tests.testmodelpost:1']))
+        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'the'), set(['tests.testmodelpost:3',
+                                                                    'tests.testmodelpost:2',
+                                                                    'tests.testmodelpost:1']))
         self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'this is the third post  i am sure you know this'),
-                          set(['search.testmodelpost:3']))
-        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'this is the second post'), set(['search.testmodelpost:2']))
-        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'this is the first post'), set(['search.testmodelpost:1']))
-        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'post'), set(['search.testmodelpost:3',
-                                                                     'search.testmodelpost:2',
-                                                                     'search.testmodelpost:1']))
-        self.assertEquals(r.smembers('models-search.testmodelpost:1'),
+                          set(['tests.testmodelpost:3']))
+        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'this is the second post'), set(['tests.testmodelpost:2']))
+        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'this is the first post'), set(['tests.testmodelpost:1']))
+        self.assertEquals(r.smembers(SKEY_AUTOCOMPLETE+'post'), set(['tests.testmodelpost:3',
+                                                                     'tests.testmodelpost:2',
+                                                                     'tests.testmodelpost:1']))
+        self.assertEquals(r.smembers('models-tests.testmodelpost:1'),
                           set(['title:This is the first post.',
                                'get_absolute_url:/blog/post/this-is-the-first-post/',
                                'slug:this-is-the-first-post']))
-        self.assertEquals(r.smembers('models-search.testmodelpost:2'),
+        self.assertEquals(r.smembers('models-tests.testmodelpost:2'),
                           set(['title:This is the second post.',
                                'get_absolute_url:/blog/post/this-is-the-second-post/',
                                'slug:this-is-the-second-post']))
-        self.assertEquals(r.smembers('models-search.testmodelpost:3'),
+        self.assertEquals(r.smembers('models-tests.testmodelpost:3'),
                           set(['title:This is the third post. I am sure you know this.',
                                'get_absolute_url:/blog/post/this-is-the-third-post-i-am-sure-you-know-this/',
                                'slug:this-is-the-third-post-i-am-sure-you-know-this']))
@@ -168,7 +125,7 @@ class SearchUtilTests(APITestCase):
         self.assertTrue(SKEY_AUTOCOMPLETE+'test' in autocomplete_list)
         self.assertTrue(SKEY_AUTOCOMPLETE+'post' in autocomplete_list)
         self.assertTrue(SKEY_AUTOCOMPLETE+'this is a test post' in autocomplete_list)
-        self.assertEquals(r.smembers('models-search.testmodelpost:1'),
+        self.assertEquals(r.smembers('models-tests.testmodelpost:1'),
                           set(['title:This is a test post.',
                                'slug:this-is-a-test-post',
                                'get_absolute_url:/blog/post/this-is-a-test-post/']))
@@ -208,14 +165,29 @@ class SearchUtilTests(APITestCase):
         G(TestModelPost, title="This is a test case.", slug="", author=self.staff)
         G(TestModelPost, title="This is a test.", slug="", author=self.staff)
         result = search_redis("post attempt")
-        self.assertEquals(result, [{'pk': 2, 'model': 'search.testmodelpost', 'fields':
-                                   {'get_absolute_url': '/blog/post/this-is-a-post-called-attempt-post/',
-                                    'slug': 'this-is-a-post-called-attempt-post',
-                                    'title': 'This is a post called attempt post.'}},
-                                   {'pk': 3, 'model': 'search.testmodelpost', 'fields':
-                                   {'get_absolute_url': '/blog/post/this-is-a-test-attempt-post/',
-                                    'slug': 'this-is-a-test-attempt-post', 'title': 'This is a test attempt post.'}},
-                                   {'pk': 1, 'model': 'search.testmodelpost',
-                                    'fields': {'get_absolute_url': '/blog/post/this-is-a-python-post/',
-                                    'slug': 'this-is-a-python-post', 'title': 'This is a python post.'}}])
+        self.assertEquals(result, [{'model': 'tests.testmodelpost', 'title': 'This is a post called attempt post.',
+                                    'get_absolute_url': '/blog/post/this-is-a-post-called-attempt-post/',
+                                    'id': 2, 'slug': 'this-is-a-post-called-attempt-post'},
+                                   {'model': 'tests.testmodelpost', 'title': 'This is a test attempt post.',
+                                    'get_absolute_url': '/blog/post/this-is-a-test-attempt-post/',
+                                    'id': 3, 'slug': 'this-is-a-test-attempt-post'},
+                                   {'model': 'tests.testmodelpost', 'title': 'This is a python post.',
+                                    'get_absolute_url': '/blog/post/this-is-a-python-post/',
+                                    'id': 1, 'slug': 'this-is-a-python-post'}])
 
+    def test_search_function_multiple(self):
+        """ Test basic search function is independent each time """
+        G(TestModelPost, title="This is a one post.", slug="", author=self.staff)
+        G(TestModelPost, title="This is a one post called hello.", slug="", author=self.staff)
+        G(TestModelPost, title="This is a two post.", slug="", author=self.staff)
+        result = search_redis("one")
+        self.assertEquals(result, [{'model': 'tests.testmodelpost', 'title': 'This is a one post called hello.',
+                                    'get_absolute_url': '/blog/post/this-is-a-one-post-called-hello/', 
+                                    'id': 2, 'slug': 'this-is-a-one-post-called-hello'},
+                                   {'model': 'tests.testmodelpost', 'title': 'This is a one post.',
+                                   'get_absolute_url': '/blog/post/this-is-a-one-post/',
+                                    'id': 1, 'slug': 'this-is-a-one-post'}])
+        result2 = search_redis("two")
+        self.assertEquals(result2, [{'model': 'tests.testmodelpost', 'title': 'This is a two post.',
+                                     'get_absolute_url': '/blog/post/this-is-a-two-post/',
+                                     'id': 3, 'slug': 'this-is-a-two-post'}])

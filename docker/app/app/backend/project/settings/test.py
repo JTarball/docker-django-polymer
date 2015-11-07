@@ -61,7 +61,6 @@ STATICFILES_FINDERS = (
 )
 # Override
 INSTALLED_APPS += (
-
 #     'django.contrib.auth',
 #     'django.contrib.contenttypes',
 #     'django.contrib.sessions',
@@ -72,8 +71,10 @@ INSTALLED_APPS += (
 #     'blog',
 #     'south',
      'django_nose',
+     'tests',
 #     'project.views.tests',
-#     'search'
+ # imports models for test only
+    
 )
 
 print INSTALLED_APPS
