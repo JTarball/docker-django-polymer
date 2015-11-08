@@ -58,12 +58,16 @@ class RegisterView(APIView, SignupView):
                                app_settings.EMAIL_VERIFICATION,
                                self.get_success_url())
 
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super(RegisterView, self).get_form_kwargs(*args, **kwargs)
+        kwargs['data'] = self.request.data
+        return kwargs
+
     def post(self, request, *args, **kwargs):
         if not accounts_settings.REGISTRATION_OPEN:
             return Response({'message': 'Registration is current closed. Please try again soon.'},
                             status=status.HTTP_400_BAD_REQUEST)
         self.initial = {}
-        self.request.POST = self.request.data.copy()
         form_class = self.get_form_class()
         self.form = self.get_form(form_class)
         if self.form.is_valid():
@@ -74,8 +78,8 @@ class RegisterView(APIView, SignupView):
 
     def get_response(self):
         # serializer = self.user_serializer_class(instance=self.user)
-        serializer = self.serializer_class(instance=self.token)
-        logger.info("get_response %s" % self.token)
+        serializer = self.serializer_class(instance=self.token,
+                                           context={'request': self.request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_response_with_errors(self):
