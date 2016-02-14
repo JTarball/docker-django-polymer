@@ -15,7 +15,6 @@ dependencies:
         - sudo killall redis-server 
         - sudo killall postgres
         - docker info
-        - sudo pip install docker-compose
         - docker-compose up -d
 
 test:
@@ -26,6 +25,16 @@ test:
     - mkdir -p $CIRCLE_TEST_REPORTS/django
     - mv /home/ubuntu/docker-django-polymer/docker/app/app/backend/circle-junit/django $CIRCLE_TEST_REPORTS/
 
+# deployment:
+#   production:
+#     branch: master
+#     commands:
+#       - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
+#       - docker build -t "caarlos0/getantibody:$CIRCLE_BUILD_NUM" .
+#       - docker push "caarlos0/getantibody:$CIRCLE_BUILD_NUM"
+#       - sed -i'' -e "s;%BUILD_NUM%;$CIRCLE_BUILD_NUM;g" ./.deploy/Dockerrun.aws.json
+#       - cd .deploy && eb init -r us-east-1 getantibody
+#       - cd .deploy && eb deploy -l $CIRCLE_BUILD_NUM
 
 #test:
 #    override:
